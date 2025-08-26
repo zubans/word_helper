@@ -1,0 +1,17 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+input {
+  width: 300px;
+  padding: 10px;
+  margin-right: 10px;
+}
+button {
+  padding: 10px 20px;
+}
+#responseOutput {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+}

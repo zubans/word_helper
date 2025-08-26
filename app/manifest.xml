@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:type="TaskPaneApp">
+  <Id>D51A48EC-70CD-4265-8FBD-C21D64B77D4B</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>SSS</ProviderName>
+  <DefaultLocale>ru-RU</DefaultLocale>
+  <DisplayName DefaultValue="text helper"/>
+  <Description DefaultValue="Интеграция с локальной моделью Ollama"/>
+  <SupportUrl DefaultValue="https://localhost/support"/>
+
+  
+
+  <AppDomains>
+    <AppDomain>https://localhost</AppDomain>
+    <AppDomain>http://127.0.0.1:11434</AppDomain>
+  </AppDomains>
+
+  <Hosts>
+    <Host Name="Document"/>
+  </Hosts>
+
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://localhost/taskpane.html"/>
+  </DefaultSettings>
+
+  <Permissions>ReadWriteDocument</Permissions>
+  
+  
+</OfficeApp>

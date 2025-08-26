@@ -1,0 +1,43 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    networks:
+      - addin-net
+    volumes:
+      - ollama_data:/root/.ollama
+
+  app:
+    build:
+      context: ./app
+      target: dev
+    container_name: addin-app
+    ports:
+      - "3000:3000"
+    networks:
+      - addin-net
+    command: npm run dev-server
+    volumes:
+      - ./app:/app
+    working_dir: /app
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - ollama
+      - app
+    networks:
+      - addin-net
+
+volumes:
+  ollama_data:
+
+networks:
+  addin-net:
+    driver: bridge

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>text helper</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="taskpane.js" defer></script>
+</head>
+<body>
+  <input type="text" id="userInput" placeholder="Введите ваш запрос" />
+  <button id="sendButton">Отправить</button>
+  <button id="reset" title="Снять жёлтую подсветку выделения">Сбросить выделение</button>
+  <div id="responseOutput"></div>
+  <div id="err"></div>
+  <div id="err2"></div>
+
+  <div id="diffPreview" style="display:none; margin-top:1em;">
+    <button id="applyChangesButton">✅ Применить изменения</button>
+    <button id="cancelChangesButton">❌ Отказаться</button>
+
+    <h3>Предпросмотр изменений:</h3>
+    <div style="display:flex; gap:1em;">
+      <div style="flex:1;">
+        <strong>Исходный текст:</strong>
+        <pre id="originalText" style="white-space:pre-wrap; background:#f9f9f9; padding:1em; border:1px solid #ccc;"></pre>
+      </div>
+      <div style="flex:1;">
+        <strong>Обновлённый текст:</strong>
+        <pre id="updatedText" style="white-space:pre-wrap; background:#f1fff1; padding:1em; border:1px solid #ccc;"></pre>
+      </div>
+    </div>
+   
+  </div>
+</body>
+</html>
