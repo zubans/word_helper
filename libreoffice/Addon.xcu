@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data oor:name="Addons" oor:package="org.openoffice.Office" xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <node oor:name="AddonUI">
+    <node oor:name="OfficeToolBar">
+      <node oor:name="com.local.ollama.addin.Toolbar" oor:op="fuse">
+        <prop oor:name="Title" oor:type="xs:string"><value>Ollama</value></prop>
+        <node oor:name="Items">
+          <node oor:name="Send" oor:op="fuse">
+            <prop oor:name="Label" oor:type="xs:string"><value>Отправить</value></prop>
+            <prop oor:name="TargetURL" oor:type="xs:string"><value>vnd.sun.star.script:entry.py$Send?language=Python&location=share</value></prop>
+          </node>
+        </node>
+      </node>
+    </node>
+  </node>
+</oor:component-data>
+

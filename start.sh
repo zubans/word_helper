@@ -31,7 +31,23 @@ until [ "$(curl -sk -o /dev/null -w "%{http_code}" https://localhost/ollama/api/
   echo "... still waiting"
 done
 
-MODEL_NAME=${1:-"gemma3:1b"}
+APP_TARGET="word"
+MODEL_NAME="gemma3:1b"
+
+# Parse args: --app=word|libreoffice and optional model
+for arg in "$@"; do
+  case $arg in
+    --app=word)
+      APP_TARGET="word";
+      ;;
+    --app=libreoffice)
+      APP_TARGET="libreoffice";
+      ;;
+    *)
+      MODEL_NAME="$arg" ;;
+  esac
+done
+
 echo "[3/6] Pulling Ollama model: $MODEL_NAME"
 OLLAMA_CID=$(docker compose -f "$PROJECT_ROOT/docker-compose.yaml" ps -q ollama)
 if [ -z "$OLLAMA_CID" ]; then
@@ -40,14 +56,45 @@ if [ -z "$OLLAMA_CID" ]; then
 fi
 docker exec "$OLLAMA_CID" ollama pull "$MODEL_NAME"
 
-echo "[4/6] Validating Office Add-in manifest..."
-(cd "$PROJECT_ROOT/app" && npx --yes office-addin-manifest validate manifest.xml | cat)
+# If no explicit app target flag was passed, ask user to choose interactively
+if [[ "$*" != *"--app="* ]]; then
+  echo ""
+  echo "Выберите приложение для установки и запуска:"
+  echo "  1) Microsoft Word"
+  echo "  2) LibreOffice Writer"
+  printf "Введите 1 или 2 [по умолчанию: 1]: "
+  read choice
+  case "$choice" in
+    2) APP_TARGET="libreoffice" ;;
+    *) APP_TARGET="word" ;;
+  esac
+  echo "Выбрано: $APP_TARGET"
+fi
 
-echo "[5/6] Reloading nginx to pick up new certs..."
-docker exec ollama_support-nginx-1 nginx -s reload 2>/dev/null || true
-
-echo "[6/6] Sideloading Word add-in (macOS)..."
-(cd "$PROJECT_ROOT/app" && npx --yes office-addin-debugging start manifest.xml --app word --platform desktop --no-debugging | cat)
+if [ "$APP_TARGET" = "word" ]; then
+  echo "[4/6] Validating Office Add-in manifest..."
+  (cd "$PROJECT_ROOT/app" && npx --yes office-addin-manifest validate manifest.xml | cat)
+  echo "[5/6] Reloading nginx to pick up new certs..."
+  docker exec ollama_support-nginx-1 nginx -s reload 2>/dev/null || true
+  echo "[6/6] Sideloading Word add-in (macOS)..."
+  (cd "$PROJECT_ROOT/app" && npx --yes office-addin-debugging start manifest.xml --app word --platform desktop --no-debugging | cat)
+else
+  echo "[4/6] Packaging LibreOffice extension (.oxt)..."
+  LO_OUT="$PROJECT_ROOT/libreoffice/build"
+  rm -rf "$LO_OUT" && mkdir -p "$LO_OUT/META-INF" "$LO_OUT/python"
+  cp "$PROJECT_ROOT/libreoffice/description.xml" "$LO_OUT/"
+  cp "$PROJECT_ROOT/libreoffice/Addon.xcu" "$LO_OUT/"
+  cp -R "$PROJECT_ROOT/libreoffice/python" "$LO_OUT/"
+  (cd "$LO_OUT" && zip -r ../ollama.oxt . >/dev/null)
+  echo "[5/6] Installing LibreOffice extension..."
+  if command -v unopkg >/dev/null 2>&1; then
+    unopkg add -f "$PROJECT_ROOT/libreoffice/ollama.oxt" | cat || true
+  else
+    echo "unopkg not found. Install LibreOffice SDK/tools to auto-install the extension." >&2
+  fi
+  echo "[6/6] LibreOffice target selected. Launch LibreOffice Writer and enable the extension."
+fi
 
 echo "Done. Navigate to https://localhost to load the add-in."
+echo "Usage: start.sh [model] [--app=word|libreoffice]  (default model: gemma3:1b, app: word)"
 
